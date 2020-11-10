@@ -1,8 +1,10 @@
 ##### 背景：
 ##### 手上有多家亚马逊店铺，平时下载多店铺数据已经要花费不少时间，而每个店铺数据的列常常是不一样的，如果要整理合并统计这些数据，单靠excel又得消耗很长时间。  
 ##### 为了减少整理报表的时间、降低出错率，于是决定写个脚本，实现快速合并多个店铺的数据：合并主要的、有用的列，没用的列直接撇掉不要了。  
+##### 这里有下单报表、付款报表、退货报表、广告报表等，亚马逊后台会提供。
 说明：  
 手上负责的是美国、英国及澳洲的店铺，但即使是同一站点的报表，数据列也可能不一样，而且亚马逊的报表格式也会随着时间改变。需要根据自己的店铺情况改动。  
+报表使用说明：  
 order表是动态变化的，但是只要有下单记录，就会有订单号记录，其余的交易数量、交易金额等是动态变化的，无法追踪，想要知道下单数量、下单金额，不可实现。  
 工作中主要看付款金额，即每日流水Payment里的情况，客人付款、退款都是分开行记录的，于是可根据订单号情况，记录该订单付款、退款、亚马逊物流损坏等情况。  
 
@@ -21,23 +23,24 @@ import chardet
 from glob import glob
 
 
-# 1.整理报表：所有订单 order 的函数：111
+# 1.整理报表：所有订单 order 的函数：
 def concat_order():
     """
-    :return:返回所有订单数据
+    :return:返回“所有订单”数据
+    下载好的报表（TXT格式）是放在r'C:\Users\Administrator\Desktop\report\order'里，分别以'US1.txt','US14.txt'等形式放在文件夹里
     """
     print('——————开始聚合所有订单的报表数据——————')
     order = pd.DataFrame()
     order_path_head = r'C:\Users\Administrator\Desktop\report\order'
     order_list = os.listdir(order_path_head)
-    num = 0  # 后面进行到哪张表
+    num = 0  # 用于计算表的数量
 
     for i in order_list:
         print('——开始处理%s表——' % (i))
         order_path = order_path_head + '\\' + i
         f = open(order_path, mode = 'rb')
         data = f.read()
-        encod = chardet.detect(data)  # 返回一个关于编码信息的字典，这里只需要字典的值，不要键
+        encod = chardet.detect(data)  # 返回一个关于编码信息的字典（直接utf-8会乱码）。这里只要到字典的值，不要键
         encod = list(encod.values())[0]
         order_new = pd.read_table(order_path, sep='\t', encoding=encod)
         order_new['店铺'] = i.split(sep='.')[0]  # 补充店铺列信息
@@ -53,23 +56,24 @@ def concat_order():
     print("报告：已经输出结果，'所有订单 order'可以收割！！！")
 
 
-# 2.整理报表： payment 报告的函数：111
+# 2.整理报表： payment 报告的函数：
 def concat_payment():
     """
-    :return: 返回31列，日期用字符串去表示了，后期最好改回struc_time格式或者正常的年月日 时分秒
+    :return: 返回31列，日期是字符串格式的，后期最好改回struc_time格式或者正常的年月日 时分秒
+    下载好的报表（CSV格式）是放在r'C:\Users\Administrator\Desktop\report\payment'里，分别以'US1.csv','US14.csv'等形式放在文件夹里
     """
     print('——————开始聚合 payment 的报表数据——————')
     payment = pd.DataFrame()
     pay_path_head = r'C:\Users\Administrator\Desktop\report\payment'
     pay_list = os.listdir(pay_path_head)
-    num = 0  # 后面进行到哪张表
+    num = 0  
 
     for i in pay_list:
         print('——开始处理%s表——' % (i))
         pay_path = pay_path_head + '\\' + i
         f = open(pay_path, mode = 'rb')
         data = f.read()
-        encod = chardet.detect(data)  # 返回一个关于编码信息的字典，这里只需要字典的值，不要键
+        encod = chardet.detect(data)  
         encod = list(encod.values())[0]
 
         if i[0:2] == 'UK':  # 英国店铺开头有6行解释，美国和澳大利亚有7行解释语句
@@ -93,23 +97,27 @@ def concat_payment():
     print("报告：已经输出结果，'payment报表'可以收割！！！")
 
 
-# 3.整理报表： adv 报告的函数：111
+# 3.整理报表： adv 报告的函数：
 def concat_adv():
+    """
+    :return: 广告报表
+    下载好的报表（CSV格式）是放在r'C:\Users\Administrator\Desktop\report\adv'里，分别以'US1.csv','US14.csv'等形式放在文件夹里
+    """
     print('——————开始聚合广告的报表数据——————')
     adv = pd.DataFrame()
     adv_path_head = r'C:\Users\Administrator\Desktop\report\adv'
     adv_list = os.listdir(adv_path_head)
-    num = 0  # 后面进行到哪张表
+    num = 0  
 
     for i in adv_list:
         print('——开始处理%s表——' % (i))
         adv_path = adv_path_head + '\\' + i
         f = open(adv_path, mode='rb')
         data = f.read()
-        encod = chardet.detect(data)  # 返回一个关于编码信息的字典，这里只需要字典的值，不要键
+        encod = chardet.detect(data)  
         encod = list(encod.values())[0]
         print(encod)
-        if encod in ('GB2312','gb2312'):
+        if encod in ('GB2312','gb2312'):  # 先有'GB2312'，接着有'GBK'，然后有'gb18030'（范围越来越大）
             print('need modify')
             encod = 'gb18030'
         else:
@@ -174,20 +182,21 @@ def concat_month_uv():
 # 6.整理换货订单报表的函数：
 def concat_replaces():
     """
-    :replaces:返回所有换货数据，只有美国有换货
+    :replaces:返回所有换货数据，只有美国有换货，英国澳洲是直接退货，不存在换货一说法
+    下载好的报表（CSV格式）是放在r'C:\Users\Administrator\Desktop\report\replace'里，分别以'US1.csv','US14.csv'等形式放在文件夹里
     """
     print('——————开始聚合所有换货订单的报表数据——————')
     replaces = pd.DataFrame()
     replaces_path_head = r'C:\Users\Administrator\Desktop\report\replaces'
     replaces_list = os.listdir(replaces_path_head)
-    num = 0  # 后面进行到哪张表
+    num = 0  
 
     for i in replaces_list:
         print('——开始处理%s表——' % (i))
         replaces_path = replaces_path_head + '\\' + i
         f = open(replaces_path, mode = 'rb')
         data = f.read()
-        encod = chardet.detect(data)  # 返回一个关于编码信息的字典，这里只需要字典的值，不要键
+        encod = chardet.detect(data)  
         encod = list(encod.values())[0]
         replaces_new = pd.read_csv(replaces_path, encoding=encod)
         replaces_new['店铺'] = i.split(sep='.')[0]  # 补充店铺列信息
@@ -207,19 +216,20 @@ def concat_replaces():
 def concat_returns():
     """
     :returns:返回所有退货数据
+    下载好的报表（CSV格式）是放在r'C:\Users\Administrator\Desktop\report\returns',分别以'US1.csv','US14.csv'等形式放在文件夹里
     """
     print('——————开始聚合所有退货订单的报表数据——————')
     returns = pd.DataFrame()
     returns_path_head = r'C:\Users\Administrator\Desktop\report\returns'
     returns_list = os.listdir(returns_path_head)
-    num = 0  # 后面进行到哪张表
+    num = 0 
 
     for i in returns_list:
         print('——开始处理%s表——' % (i))
         returns_path = returns_path_head + '\\' + i
         f = open(returns_path, mode='rb')
         data = f.read()
-        encod = chardet.detect(data)  # 返回一个关于编码信息的字典，这里只需要字典的值，不要键
+        encod = chardet.detect(data)  
         encod = list(encod.values())[0]
         returns_new = pd.read_csv(returns_path, encoding=encod)
         returns_new['店铺'] = i.split(sep='.')[0]  # 补充店铺列信息
@@ -248,6 +258,7 @@ def concat_returns():
 def concat_uv_day():
     """
     :return:返回每日uv数据
+    下载好的报表（CSV格式）是放在r'C:\Users\Administrator\Desktop\report\uv_day',分别以'US1.csv','US14.csv'等形式放在文件夹里
     """
     print('——————开始聚合每日UV的报表数据——————')
     uv_day = pd.DataFrame()
@@ -312,19 +323,20 @@ def concat_uv_day():
 def concat_inventory_day():
     """
     :return: 每日库存记录
+    下载好的报表（CSV格式）是放在r'C:\Users\Administrator\Desktop\report\inventory',分别以'US1.csv','US14.csv'等形式放在文件夹里
     """
     print('——————开始聚合 inventory 的报表数据——————')
     inventory = pd.DataFrame()
     inventory_path_head = r'C:\Users\Administrator\Desktop\report\inventory'
     inventory_list = os.listdir(inventory_path_head)
-    num = 0  # 后面进行到哪张表
+    num = 0 
 
     for i in inventory_list:
         print('——开始处理%s表——' % (i))
         inventory_path = inventory_path_head + '\\' + i
         f = open(inventory_path, mode = 'rb')
         data = f.read()
-        encod = chardet.detect(data)  # 返回一个关于编码信息的字典，这里只需要字典的值，不要键
+        encod = chardet.detect(data)  
         encod = list(encod.values())[0]
 
         if i == 'AU1.csv':
@@ -350,19 +362,20 @@ def concat_inventory_day():
 def concat_promotion():
     """
     :return: 每日优惠券使用记录
+    下载好的报表（CSV格式）是放在r'C:\Users\Administrator\Desktop\report\promotion',分别以'US1.csv','US14.csv'等形式放在文件夹里
     """
     print('——————开始聚合 promotion 的报表数据——————')
     promotion = pd.DataFrame()
     promotion_path_head = r'C:\Users\Administrator\Desktop\report\promotion'
     promotion_list = os.listdir(promotion_path_head)
-    num = 0  # 后面进行到哪张表
+    num = 0 
 
     for i in promotion_list:
         print('——开始处理%s表——' % (i))
         promotion_path = promotion_path_head + '\\' + i
         f = open(promotion_path, mode = 'rb')
         data = f.read()
-        encod = chardet.detect(data)  # 返回一个关于编码信息的字典，这里只需要字典的值，不要键
+        encod = chardet.detect(data) 
         encod = list(encod.values())[0]
         promotion_new = pd.read_csv(promotion_path, encoding=encod)
 
@@ -413,3 +426,6 @@ if __name__=='__main__':
     concat_report()
 
 ```
+
+思考：
+
