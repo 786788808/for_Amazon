@@ -52,48 +52,36 @@ def lda_function():
         # 小写处理
         out_words = positive_review.lower()
         # 拓展缩写
-        out_words = re.sub(r"doesn('|’)t", "does not", out_words)
-        out_words = re.sub(r"doesnt", "does not", out_words)
-        out_words = re.sub("aren('|’)t", "are not", out_words)
-        out_words = re.sub("arnt", "are not", out_words)
-        out_words = re.sub("don('|’)t", "do not", out_words)
-        out_words = re.sub("dont", "do not", out_words)
-        out_words = re.sub("can('|’)t", "can not", out_words)
-        out_words = re.sub("didn('|’)t", "did not", out_words)
-        out_words = re.sub("didnt", "did not", out_words)
-        out_words = re.sub("couldn('|’)t", "could not", out_words)
-        out_words = re.sub("couldnt", "could not", out_words)
-        out_words = re.sub("i('|’)ve", "i have", out_words)
-        out_words = re.sub("i('|’)m", "i am", out_words)
-        out_words = re.sub("^im$", "i am", out_words)
-        out_words = re.sub("i('|’)ll", "i will", out_words)
-        out_words = re.sub("i('|’)d", "i would", out_words)
-        out_words = re.sub("it('|’)s", "it is", out_words)
-        out_words = re.sub("isn('|’)t", "is not", out_words)
-        out_words = re.sub("ive", "i have", out_words)
-        out_words = re.sub('havent', "have not", out_words)
-        out_words = re.sub('hadnt', "had not", out_words)
-        out_words = re.sub("wouldn('|’)t", "would not", out_words)
-        out_words = re.sub("wouldnt", "would not", out_words)
-        out_words = re.sub("wasn('|’)t", "was not", out_words)
-        out_words = re.sub("wasnt", "was not", out_words)
-        out_words = re.sub("werent", "were not", out_words)
-        out_words = re.sub("won('|’)t", "will not", out_words)
-        out_words = re.sub("whats", "what is", out_words)
-        out_words = re.sub("you('|’)ll", "you will", out_words)
-        out_words = re.sub("youre", "you are", out_words)
-        out_words = re.sub("youd", "you would", out_words)
-        out_words = re.sub("there('|’)s", "there is", out_words)
-        out_words = re.sub("thats", "that is", out_words)
-        out_words = re.sub("that('|’)s", "that is", out_words)
-        out_words = re.sub("theyre", "they are", out_words)
-        out_words = re.sub('theyve', "they have", out_words)
-        out_words = re.sub("gotta", "have got to", out_words)
-        out_words = re.sub("whats", "what is", out_words)
-        out_words = out_words.replace("hdi", "hdmi")
+        replacements = [
+            (r'[’]', "'"),
+            (r'won\'t', 'will not'),
+            (r'can\'t', 'can not'),
+            (r'i\'m', 'i am'),
+            (r'ain\'t', 'is not'),
+            (r'(\w+)\'ll', r'\g<1> will'),  # \w+匹配字母数字及下划线，相当于[A-Za-z0-9_]
+            (r'(\w+)n\'t', r'\g<1> not'),  # 字符串替换的引用： \g序号 或 \g<序号>，推荐用第二种方法，防止歧义
+            (r'(\w+)\'ve', r'\g<1> have'),
+            (r'(\w+)\'s', r'\g<1> is'),
+            (r'(\w+)\'re', r'\g<1> are'),
+            (r'(\w+)\'d', r'\g<1> would'),
+            (r'doesnt', 'does not'),  # 评论里有很多省略的否定缩写
+            (r'arnt', 'are not'),
+            (r'dont', 'do not'),
+            (r'didnt', 'did not'),
+            (r'couldnt', 'could not'),
+            (r'ive', 'i have'),
+            (r'wouldnt', 'would not'),
+            (r'thats', 'that is'),
+            (r'gotta', 'have got to'),
+            (r'wasnt', 'was not'),
+            (r'whats', 'what is')
+        ]
+        for old, new in replacements:
+            out_words = re.sub(old, new, out_words)
+        
+        out_words = out_words.replace("hdi", "hdmi")   # 调查HDMI时用到，具体情况看自己评论
         out_words = out_words.replace('cause', 'because')
         out_words = out_words.replace('kinda', 'kind of')
-        }
         # 拼写纠错，暂时用这个，还有 pyenchant，暂时不用
         correct = Speller()
         out_words = correct.autocorrect_sentence(out_words)
@@ -174,44 +162,33 @@ def lda_function():
         # 小写处理
         out_words = negative_review.lower()
         # 拓展缩写
-        out_words = re.sub(r"doesn('|’)t", "does not", out_words)
-        out_words = re.sub(r"doesnt", "does not", out_words)
-        out_words = re.sub("aren('|’)t", "are not", out_words)
-        out_words = re.sub("arnt", "are not", out_words)
-        out_words = re.sub("don('|’)t", "do not", out_words)
-        out_words = re.sub("dont", "do not", out_words)
-        out_words = re.sub("can('|’)t", "can not", out_words)
-        out_words = re.sub("didn('|’)t", "did not", out_words)
-        out_words = re.sub("didnt", "did not", out_words)
-        out_words = re.sub("couldn('|’)t", "could not", out_words)
-        out_words = re.sub("couldnt", "could not", out_words)
-        out_words = re.sub("i('|’)ve", "i have", out_words)
-        out_words = re.sub("i('|’)m", "i am", out_words)
-        out_words = re.sub("^im$", "i am", out_words)
-        out_words = re.sub("i('|’)ll", "i will", out_words)
-        out_words = re.sub("i('|’)d", "i would", out_words)
-        out_words = re.sub("it('|’)s", "it is", out_words)
-        out_words = re.sub("isn('|’)t", "is not", out_words)
-        out_words = re.sub("ive", "i have", out_words)
-        out_words = re.sub('havent', "have not", out_words)
-        out_words = re.sub('hadnt', "had not", out_words)
-        out_words = re.sub("wouldn('|’)t", "would not", out_words)
-        out_words = re.sub("wouldnt", "would not", out_words)
-        out_words = re.sub("wasn('|’)t", "was not", out_words)
-        out_words = re.sub("wasnt", "was not", out_words)
-        out_words = re.sub("werent", "were not", out_words)
-        out_words = re.sub("won('|’)t", "will not", out_words)
-        out_words = re.sub("whats", "what is", out_words)
-        out_words = re.sub("you('|’)ll", "you will", out_words)
-        out_words = re.sub("youre", "you are", out_words)
-        out_words = re.sub("youd", "you would", out_words)
-        out_words = re.sub("there('|’)s", "there is", out_words)
-        out_words = re.sub("thats", "that is", out_words)
-        out_words = re.sub("that('|’)s", "that is", out_words)
-        out_words = re.sub("theyre", "they are", out_words)
-        out_words = re.sub('theyve', "they have", out_words)
-        out_words = re.sub("gotta", "have got to", out_words)
-        out_words = re.sub("whats", "what is", out_words)
+        replacements = [
+            (r'[’]', "'"),
+            (r'won\'t', 'will not'),
+            (r'can\'t', 'can not'),
+            (r'i\'m', 'i am'),
+            (r'ain\'t', 'is not'),
+            (r'(\w+)\'ll', r'\g<1> will'),  # \w+匹配字母数字及下划线，相当于[A-Za-z0-9_]
+            (r'(\w+)n\'t', r'\g<1> not'),  # 字符串替换的引用： \g序号 或 \g<序号>，推荐用第二种方法，防止歧义
+            (r'(\w+)\'ve', r'\g<1> have'),
+            (r'(\w+)\'s', r'\g<1> is'),
+            (r'(\w+)\'re', r'\g<1> are'),
+            (r'(\w+)\'d', r'\g<1> would'),
+            (r'doesnt', 'does not'),  # 评论里有很多省略的否定缩写
+            (r'arnt', 'are not'),
+            (r'dont', 'do not'),
+            (r'didnt', 'did not'),
+            (r'couldnt', 'could not'),
+            (r'ive', 'i have'),
+            (r'wouldnt', 'would not'),
+            (r'thats', 'that is'),
+            (r'gotta', 'have got to'),
+            (r'wasnt', 'was not'),
+            (r'whats', 'what is')
+        ]
+        for old, new in replacements:
+            out_words = re.sub(old, new, out_words)
+            
         out_words = out_words.replace("hdi", "hdmi")
         out_words = out_words.replace('cause', 'because')
         out_words = out_words.replace('kinda', 'kind of')
@@ -296,7 +273,7 @@ if __name__ == '__main__':
 
 ##### 反思：
 整个分词的过程有待优化，参考其他大神的文章后，依然用自己的思路逐步清除下来。  
-拓展缩写部分，需修改，当前部分太累赘。  
+拓展缩写部分，需修改，当前部分太累赘。  # 已修改，但是实际评论中常有否定词简写（为方便省去上引号），实际用的过程中仍要检查，逐步丰富该部分
 去除emoji表情部分，仍不是很懂，怕有遗漏，后面要优化。  
 整体代码太长，处理那一part可以直接换成通用函数，直接调用即可，不用写两遍。
 
