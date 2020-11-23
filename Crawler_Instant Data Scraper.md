@@ -5,4 +5,10 @@
 使用教程：
 这里介绍 Amazon 美国站一款鱼缸架灯B07KPG9M77的评论爬取过程。
 首先，Chrome进入到产品评论页面，see all reviews。
-![image]https://github.com/786788808/for_Amazon/blob/master/1.png
+![](https://ftp.bmp.ovh/imgs/2020/11/d67b1b7955a2324c.png)
+![](https://ftp.bmp.ovh/imgs/2020/11/ea57ac8044069223.png)
+![](https://ftp.bmp.ovh/imgs/2020/11/762c8439b69fc666.png)
+![](https://ftp.bmp.ovh/imgs/2020/11/f05213aeaba7c092.png)
+![](https://ftp.bmp.ovh/imgs/2020/11/8dd95a6166a90e98.png)
+![](https://ftp.bmp.ovh/imgs/2020/11/28b1b39256bf6a58.png)
+![](https://ftp.bmp.ovh/imgs/2020/11/709e04d923488d2e.png)
